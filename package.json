@@ -1,7 +1,7 @@
 {
-  "name": "ufc-honor-picks",
+  "name": "fantasy-fight-picks",
   "version": "1.0.0",
-  "description": "UFC Picks App using Express",
+  "description": "Fantasy UFC Fight Picks App",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
