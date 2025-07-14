@@ -18,13 +18,12 @@
     .fight {
       border: 1px solid #444;
       padding: 10px;
-      margin: 10px;
+      margin: 10px auto;
+      max-width: 500px;
       background-color: #222;
     }
-    #myPicks {
+    #myPicks, #leaderboard {
       margin-top: 30px;
-      border-top: 2px solid #555;
-      padding-top: 20px;
     }
   </style>
 </head>
@@ -41,6 +40,15 @@
     <button onclick="submitPicks()">Submit Picks</button>
     <button onclick="viewMyPicks()">View My Picks</button>
     <div id="myPicks"></div>
+
+    <hr>
+    <h2>🏆 Leaderboard</h2>
+    <div id="leaderboard">
+      <h3>This Week</h3>
+      <ul id="weeklyBoard"></ul>
+      <h3>All Time</h3>
+      <ul id="allTimeBoard"></ul>
+    </div>
   </div>
 
   <script src="script.js"></script>
