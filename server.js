@@ -48,18 +48,28 @@ app.get("/api/leaderboard", (req, res) => {
 
   for (const user in picks) {
     let total = 0, weeklyPoints = 0;
+
     picks[user].forEach(pick => {
       const result = results.find(r => r.fightId == pick.fightId);
       if (!result) return;
+
       let pts = 0;
+
+      console.log(`Scoring pick for ${user}:`, pick);
+      console.log(`Matched result:`, result);
+
       if (pick.fighter === result.winner) {
         pts += 1;
         if (pick.method === result.method) pts += 1;
         if (underdogs[pick.fightId] === pick.fighter) pts += 2;
       }
+
+      console.log(`+${pts} points awarded for this pick`);
+
       total += pts;
       if (result.event === fights.event) weeklyPoints += pts;
     });
+
     weekly.push({ user, weekly: weeklyPoints });
     allTime.push({ user, total });
   }
