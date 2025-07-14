@@ -5,14 +5,11 @@
     { "id": 2, "f1": "Brad Katona", "f2": "Gustavo Lopez", "underdog": "Gustavo Lopez" },
     { "id": 3, "f1": "Trevor Peek", "f2": "Elves Brener", "underdog": "Trevor Peek" },
     { "id": 4, "f1": "JP Buys", "f2": "Victor Altamirano", "underdog": "JP Buys" },
-    { "id": 5, "f1": "Bruna Brasil", "f2": "Denise Gomes", "underdog": "Bruna Brasil" },
-    { "id": 6, "f1": "Don'Tale Mayes", "f2": "Jared Vanderaa", "underdog": "Don'Tale Mayes" },
-    { "id": 7, "f1": "Miles Johns", "f2": "Kyung Ho Kang", "underdog": "Kyung Ho Kang" },
-    { "id": 8, "f1": "Iasmin Lucindo", "f2": "Angela Hill", "underdog": "Angela Hill" },
-    { "id": 9, "f1": "Brady Hiestand", "f2": "Danaa Batgerel", "underdog": "Brady Hiestand" },
-    { "id": 10, "f1": "Sodiq Yusuff", "f2": "T.J. Laramie", "underdog": "T.J. Laramie" },
-    { "id": 11, "f1": "Martin Buday", "f2": "Waldo Cortes-Acosta", "underdog": "Martin Buday" },
-    { "id": 12, "f1": "David Dvořák", "f2": "Carlos Hernandez", "underdog": "Carlos Hernandez" }
+    { "id": 5, "f1": "Bruna Brasil", "f2": "Denise Gomes", "underdog": "Bruna Brasil" }
   ],
-  "results": []
+  "results": [
+    { "fightId": 1, "winner": "Max Holloway", "method": "Decision", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" },
+    { "fightId": 2, "winner": "Gustavo Lopez", "method": "KO", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" },
+    { "fightId": 3, "winner": "Elves Brener", "method": "Submission", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" }
+  ]
 }
