@@ -56,12 +56,14 @@ function loadFights() {
 }
 
 function submitPicks() {
-  const selects = document.querySelectorAll("select");
   const picks = [];
-  selects.forEach(s => {
-    const id = s.id.split("-")[1];
+  const fightDivs = document.querySelectorAll(".fight");
+
+  fightDivs.forEach(div => {
+    const id = div.querySelector("select").id.split("-")[1];
     const fighter = document.getElementById(`fighter-${id}`).value;
     const method = document.getElementById(`method-${id}`).value;
+
     if (fighter && method) {
       picks.push({ fightId: id, fighter, method });
     }
@@ -92,33 +94,4 @@ function loadMyPicks() {
 
       const ul = document.createElement("ul");
       data.picks.forEach(pick => {
-        const fight = data.fights.find(f => f.id === pick.fightId);
-        const li = document.createElement("li");
-        li.textContent = `${fight.f1} vs ${fight.f2} — You picked ${pick.fighter} by ${pick.method}`;
-        ul.appendChild(li);
-      });
-
-      myPicksDiv.appendChild(ul);
-    });
-}
-
-function loadLeaderboard() {
-  fetch("/api/leaderboard")
-    .then(res => res.json())
-    .then(data => {
-      leaderboardDiv.innerHTML = "<h2>🏆 Leaderboard</h2>";
-
-      const weekly = document.createElement("div");
-      weekly.innerHTML = "<h3>This Week</h3><ul>" +
-        data.weekly.map(p => `<li>${p.user}: ${p.weekly} pts</li>`).join("") +
-        "</ul>";
-
-      const allTime = document.createElement("div");
-      allTime.innerHTML = "<h3>All-Time</h3><ul>" +
-        data.allTime.map(p => `<li>${p.user}: ${p.total} pts</li>`).join("") +
-        "</ul>";
-
-      leaderboardDiv.appendChild(weekly);
-      leaderboardDiv.appendChild(allTime);
-    });
-}
+        const fight = dat
