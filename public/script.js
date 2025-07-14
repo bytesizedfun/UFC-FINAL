@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (name) {
     document.getElementById("userSetup").style.display = "none";
     document.getElementById("mainApp").style.display = "block";
-    document.getElementById("welcome").innerText = `Welcome back, ${name}!`;
+    document.getElementById("welcome").innerText = `👋 Welcome to Fantasy Fight Picks, ${name}!`;
     await loadFights();
     await loadLeaderboard();
   }
