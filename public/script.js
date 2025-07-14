@@ -1,70 +1,91 @@
+let fights = [];
+let picks = [];
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const name = localStorage.getItem("ufc_username");
+  if (name) {
+    document.getElementById("userSetup").style.display = "none";
+    document.getElementById("mainApp").style.display = "block";
+    document.getElementById("welcome").innerText = `Welcome back, ${name}!`;
+    loadFights();
+  }
+});
+
+function lockName() {
+  const name = document.getElementById("username").value.trim();
+  if (!name) return alert("Enter a name!");
+  localStorage.setItem("ufc_username", name);
+  location.reload();
+}
+
 async function loadFights() {
   const res = await fetch("/api/fights");
   const data = await res.json();
-  const form = document.getElementById("picks-form");
-  data.fights.forEach(fight => {
+  fights = data.fights;
+  const container = document.getElementById("fights");
+  container.innerHTML = "";
+
+  fights.forEach(f => {
     const div = document.createElement("div");
     div.className = "fight";
     div.innerHTML = `
-      <strong>${fight.f1} vs ${fight.f2}</strong><br>
-      <label><input type="radio" name="fight-${fight.id}" value="${fight.f1}"> ${fight.f1}</label>
-      <label><input type="radio" name="fight-${fight.id}" value="${fight.f2}"> ${fight.f2}</label><br>
-      <select name="method-${fight.id}">
-        <option value="decision">Decision</option>
-        <option value="ko">KO/TKO</option>
-        <option value="submission">Submission</option>
+      <strong>${f.f1}</strong> vs <strong>${f.f2}</strong><br>
+      Pick: 
+      <select id="fighter-${f.id}">
+        <option value="">--</option>
+        <option value="${f.f1}">${f.f1}</option>
+        <option value="${f.f2}">${f.f2}</option>
       </select>
-      <hr>`;
-    form.appendChild(div);
+      Method:
+      <select id="method-${f.id}">
+        <option value="">--</option>
+        <option value="KO/TKO">KO/TKO</option>
+        <option value="Submission">Submission</option>
+        <option value="Decision">Decision</option>
+      </select>
+    `;
+    container.appendChild(div);
   });
 }
 
-document.getElementById("submit-btn").onclick = async () => {
-  const username = document.getElementById("username").value.trim();
-  if (!username) return alert("Enter your name");
+async function submitPicks() {
+  const username = localStorage.getItem("ufc_username");
+  const selections = [];
+  for (const f of fights) {
+    const fighter = document.getElementById(`fighter-${f.id}`).value;
+    const method = document.getElementById(`method-${f.id}`).value;
+    if (!fighter || !method) continue;
+    selections.push({ fightId: f.id, fighter, method });
+  }
+  if (selections.length === 0) return alert("No picks made.");
+  const res = await fetch("/api/submit", {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, picks: selections })
+  });
+  if (res.ok) alert("Picks submitted!");
+}
 
+async function viewMyPicks() {
+  const username = localStorage.getItem("ufc_username");
   const res = await fetch("/api/fights");
   const data = await res.json();
+  const results = data.results || [];
+  const myPicks = (await fetch("/api/leaderboard").then(r => r.json())).allTime.find(u => u.user === username);
+  const rawPicks = (await fetch("/data/picks.json")).json(); // Not exposed, you can skip this if needed
 
-  const picks = [];
-  data.fights.forEach(fight => {
-    const pick = document.querySelector(`input[name="fight-${fight.id}"]:checked`);
-    const method = document.querySelector(`select[name="method-${fight.id}"]`).value;
-    if (pick) {
-      picks.push({ fightId: fight.id, fighter: pick.value, method });
-    }
-  });
+  const picksHTML = data.fights.map(fight => {
+    const match = rawPicks[username]?.find(p => p.fightId === fight.id);
+    if (!match) return '';
+    const result = results.find(r => r.fightId === fight.id);
+    const outcome = result ? (result.winner === match.fighter ? "✅" : "❌") : "⏳";
+    return `
+      <div class="fight">
+        <strong>${fight.f1}</strong> vs <strong>${fight.f2}</strong><br>
+        You picked: ${match.fighter} by ${match.method} ${outcome}
+      </div>
+    `;
+  }).join("");
 
-  await fetch("/api/submit", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, picks })
-  });
-
-  loadLeaderboard();
-};
-
-async function loadLeaderboard() {
-  const res = await fetch("/api/leaderboard");
-  const data = await res.json();
-
-  const w = document.getElementById("weekly");
-  const a = document.getElementById("all-time");
-  w.innerHTML = "";
-  a.innerHTML = "";
-
-  data.weekly.forEach(x => {
-    const li = document.createElement("li");
-    li.textContent = `${x.user}: ${x.weekly} pts`;
-    w.appendChild(li);
-  });
-
-  data.allTime.forEach(x => {
-    const li = document.createElement("li");
-    li.textContent = `${x.user}: ${x.total} pts`;
-    a.appendChild(li);
-  });
+  document.getElementById("myPicks").innerHTML = picksHTML || "No picks yet.";
 }
-
-loadFights();
-loadLeaderboard();
