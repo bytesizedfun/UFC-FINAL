@@ -2,18 +2,17 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const app = express();
-
 app.use(express.json());
 app.use(express.static("public"));
 
 const picksFile = path.join(__dirname, "data", "picks.json");
 const fightsFile = path.join(__dirname, "data", "fights.json");
 
-function load(f) {
-  return JSON.parse(fs.readFileSync(f));
+function load(file) {
+  return JSON.parse(fs.readFileSync(file));
 }
-function save(f, d) {
-  fs.writeFileSync(f, JSON.stringify(d, null, 2));
+function save(file, data) {
+  fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
 
 app.get("/api/fights", (req, res) => {
@@ -22,41 +21,53 @@ app.get("/api/fights", (req, res) => {
 
 app.post("/api/submit", (req, res) => {
   const { username, picks } = req.body;
-  const p = load(picksFile);
-  p[username] = picks;
-  save(picksFile, p);
+  const all = load(picksFile);
+  all[username] = picks;
+  save(picksFile, all);
   res.json({ success: true });
 });
 
 app.get("/api/leaderboard", (req, res) => {
-  const p = load(picksFile);
-  const f = load(fightsFile);
-  const results = f.results || [];
-  const undMap = {};
-  f.fights.forEach(x => (undMap[x.id] = x.underdog));
+  const picks = load(picksFile);
+  const fights = load(fightsFile);
+  const results = fights.results || [];
+  const underdogs = {};
+  fights.fights.forEach(f => underdogs[f.id] = f.underdog);
 
-  const wk = [], all = [];
-  for (const u in p) {
-    let tw = 0, tt = 0;
-    p[u].forEach(pk => {
-      const r = results.find(rr => rr.fightId == pk.fightId);
-      if (!r) return;
+  const weekly = [], allTime = [];
+
+  for (const user in picks) {
+    let total = 0, weeklyPoints = 0;
+    picks[user].forEach(pick => {
+      const result = results.find(r => r.fightId === pick.fightId);
+      if (!result) return;
+
       let pts = 0;
-      if (pk.fighter === r.winner) {
+      if (pick.fighter === result.winner) {
         pts += 1;
-        if (pk.method === r.method) pts += 1;
-        if (undMap[pk.fightId] === pk.fighter) pts += 2;
+        if (pick.method === result.method) pts += 1;
+        if (underdogs[pick.fightId] === pick.fighter) pts += 2;
       }
-      tt += pts;
-      if (r.event === f.event) tw += pts;
+      total += pts;
+      if (result.event === fights.event) weeklyPoints += pts;
     });
-    wk.push({ user: u, weekly: tw });
-    all.push({ user: u, total: tt });
+    weekly.push({ user, weekly: weeklyPoints });
+    allTime.push({ user, total });
   }
-  wk.sort((a, b) => b.weekly - a.weekly);
-  all.sort((a, b) => b.total - a.total);
-  res.json({ weekly: wk, allTime: all });
+
+  weekly.sort((a, b) => b.weekly - a.weekly);
+  allTime.sort((a, b) => b.total - a.total);
+  res.json({ weekly, allTime });
+});
+
+app.get("/api/mypicks/:username", (req, res) => {
+  const username = req.params.username;
+  const allPicks = load(picksFile);
+  const userPicks = allPicks[username] || [];
+  const fights = load(fightsFile).fights;
+  res.json({ picks: userPicks, fights });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Listening on ${PORT}`));
+app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
+
