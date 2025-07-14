@@ -1,24 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>UFC Honor Picks</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: #eee;
+      text-align: center;
+      padding: 20px;
+    }
+    input, select, button {
+      margin: 5px;
+      padding: 8px;
+    }
+    .fight {
+      border: 1px solid #444;
+      padding: 10px;
+      margin: 10px;
+      background-color: #222;
+    }
+    #myPicks {
+      margin-top: 30px;
+      border-top: 2px solid #555;
+      padding-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>🏆 UFC Honor Picks</h1>
-  <div id="form-container">
-    <input type="text" id="username" placeholder="Enter your name" />
-    <form id="picks-form"></form>
-    <button id="submit-btn">Submit Picks</button>
+  <h1>🥊 UFC Honor Picks</h1>
+  <div id="userSetup">
+    <input id="username" placeholder="Enter your fight name" />
+    <button onclick="lockName()">Start Picking</button>
   </div>
-  <div id="leaderboard">
-    <h2>📅 Weekly Leaderboard</h2>
-    <ul id="weekly"></ul>
-    <h2>📈 All-Time Leaderboard</h2>
-    <ul id="all-time"></ul>
+
+  <div id="mainApp" style="display:none;">
+    <h2 id="welcome"></h2>
+    <div id="fights"></div>
+    <button onclick="submitPicks()">Submit Picks</button>
+    <button onclick="viewMyPicks()">View My Picks</button>
+    <div id="myPicks"></div>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
