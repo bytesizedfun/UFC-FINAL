@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
@@ -21,10 +22,19 @@ app.get("/api/fights", (req, res) => {
 
 app.post("/api/submit", (req, res) => {
   const { username, picks } = req.body;
+  if (!username || !Array.isArray(picks)) return res.status(400).json({ error: "Invalid data" });
+
   const all = load(picksFile);
   all[username] = picks;
   save(picksFile, all);
   res.json({ success: true });
+});
+
+app.get("/api/mypicks/:username", (req, res) => {
+  const allPicks = load(picksFile);
+  const userPicks = allPicks[req.params.username] || [];
+  const fights = load(fightsFile).fights;
+  res.json({ picks: userPicks, fights });
 });
 
 app.get("/api/leaderboard", (req, res) => {
@@ -39,9 +49,8 @@ app.get("/api/leaderboard", (req, res) => {
   for (const user in picks) {
     let total = 0, weeklyPoints = 0;
     picks[user].forEach(pick => {
-      const result = results.find(r => r.fightId === pick.fightId);
+      const result = results.find(r => r.fightId == pick.fightId);
       if (!result) return;
-
       let pts = 0;
       if (pick.fighter === result.winner) {
         pts += 1;
@@ -57,17 +66,9 @@ app.get("/api/leaderboard", (req, res) => {
 
   weekly.sort((a, b) => b.weekly - a.weekly);
   allTime.sort((a, b) => b.total - a.total);
+
   res.json({ weekly, allTime });
 });
 
-app.get("/api/mypicks/:username", (req, res) => {
-  const username = req.params.username;
-  const allPicks = load(picksFile);
-  const userPicks = allPicks[username] || [];
-  const fights = load(fightsFile).fights;
-  res.json({ picks: userPicks, fights });
-});
-
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
-
+app.listen(PORT, () => console.log(`✅ Fantasy Fight Picks running on port ${PORT}`));
