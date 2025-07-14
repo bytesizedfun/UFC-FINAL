@@ -17,10 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.lockName = function () {
     const input = document.getElementById("username");
     const name = input.value.trim();
-    if (!name) {
-      alert("Please enter a name.");
-      return;
-    }
+    if (!name) return alert("Please enter a name.");
     localStorage.setItem("username", name);
     location.reload();
   };
@@ -30,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(res => res.json())
       .then(data => {
         const event = document.createElement("h2");
-        event.textContent = `🗓️ Event: ${data.event}`;
+        event.textContent = data.event;
         fightForm.appendChild(event);
 
         data.fights.forEach(fight => {
@@ -62,13 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function submitPicks() {
     const picks = [];
-    const fightDivs = document.querySelectorAll(".fight");
-
-    fightDivs.forEach(div => {
+    document.querySelectorAll(".fight").forEach(div => {
       const id = div.querySelector("select").id.split("-")[1];
       const fighter = document.getElementById(`fighter-${id}`).value;
       const method = document.getElementById(`method-${id}`).value;
-
       if (fighter && method) {
         picks.push({ fightId: id, fighter, method });
       }
@@ -81,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
       .then(res => res.json())
       .then(() => {
-        alert("✅ Picks submitted!");
+        alert("✅ Picks saved!");
         loadMyPicks();
         loadLeaderboard();
       });
@@ -91,12 +85,11 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(`/api/mypicks/${localStorage.getItem("username")}`)
       .then(res => res.json())
       .then(data => {
-        myPicksDiv.innerHTML = "<h2>📋 Your Picks</h2>";
-        if (!data.picks || data.picks.length === 0) {
+        myPicksDiv.innerHTML = "<h2>Your Picks</h2>";
+        if (!data.picks.length) {
           myPicksDiv.innerHTML += "<p>No picks submitted yet.</p>";
           return;
         }
-
         const ul = document.createElement("ul");
         data.picks.forEach(pick => {
           const fight = data.fights.find(f => f.id == pick.fightId);
@@ -104,7 +97,6 @@ document.addEventListener("DOMContentLoaded", () => {
           li.textContent = `${fight.f1} vs ${fight.f2} — You picked ${pick.fighter} by ${pick.method}`;
           ul.appendChild(li);
         });
-
         myPicksDiv.appendChild(ul);
       });
   }
