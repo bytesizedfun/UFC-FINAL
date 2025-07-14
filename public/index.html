@@ -25,32 +25,64 @@
     #myPicks, #leaderboard {
       margin-top: 30px;
     }
-  </style>
-</head>
-<body>
-  <h1>👊 Fantasy Fight Picks</h1>
-  <div id="userSetup">
-    <input id="username" placeholder="Enter your fight name" />
-    <button onclick="lockName()">Start Picking</button>
-  </div>
+  <style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #111;
+    color: #eee;
+    padding: 10px;
+    margin: 0;
+  }
 
-  <div id="mainApp" style="display:none;">
-    <h2 id="welcome"></h2>
-    <div id="fights"></div>
-    <button onclick="submitPicks()">Submit Picks</button>
-    <button onclick="viewMyPicks()">View My Picks</button>
-    <div id="myPicks"></div>
+  h1, h2, h3 {
+    text-align: center;
+  }
 
-    <hr>
-    <h2>🏆 Leaderboard</h2>
-    <div id="leaderboard">
-      <h3>This Week</h3>
-      <ul id="weeklyBoard"></ul>
-      <h3>All Time</h3>
-      <ul id="allTimeBoard"></ul>
-    </div>
-  </div>
+  input, select, button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 1em;
+    width: 90%;
+    max-width: 400px;
+  }
 
-  <script src="script.js"></script>
-</body>
-</html>
+  button {
+    background-color: #444;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .fight {
+    border: 1px solid #444;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 15px auto;
+    background-color: #222;
+    max-width: 500px;
+  }
+
+  #myPicks, #leaderboard {
+    margin-top: 30px;
+  }
+
+  ul {
+    padding-left: 0;
+    list-style-type: none;
+  }
+
+  li {
+    padding: 5px 0;
+  }
+
+  @media (max-width: 600px) {
+    .fight {
+      margin: 10px 5px;
+    }
+
+    input, select, button {
+      width: 100%;
+      font-size: 1rem;
+    }
+  }
+</style>
