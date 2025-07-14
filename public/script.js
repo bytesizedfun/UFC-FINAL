@@ -1,5 +1,4 @@
 let fights = [];
-let picks = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
   const name = localStorage.getItem("ufc_username");
@@ -7,7 +6,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("userSetup").style.display = "none";
     document.getElementById("mainApp").style.display = "block";
     document.getElementById("welcome").innerText = `Welcome back, ${name}!`;
-    loadFights();
+    await loadFights();
+    await loadLeaderboard();
   }
 });
 
@@ -68,24 +68,37 @@ async function submitPicks() {
 
 async function viewMyPicks() {
   const username = localStorage.getItem("ufc_username");
-  const res = await fetch("/api/fights");
+  const res = await fetch(`/api/mypicks/${username}`);
   const data = await res.json();
-  const results = data.results || [];
-  const myPicks = (await fetch("/api/leaderboard").then(r => r.json())).allTime.find(u => u.user === username);
-  const rawPicks = (await fetch("/data/picks.json")).json(); // Not exposed, you can skip this if needed
 
-  const picksHTML = data.fights.map(fight => {
-    const match = rawPicks[username]?.find(p => p.fightId === fight.id);
-    if (!match) return '';
-    const result = results.find(r => r.fightId === fight.id);
-    const outcome = result ? (result.winner === match.fighter ? "✅" : "❌") : "⏳";
+  if (!data.picks.length) {
+    document.getElementById("myPicks").innerHTML = "No picks submitted yet.";
+    return;
+  }
+
+  const fightMap = {};
+  data.fights.forEach(f => fightMap[f.id] = f);
+
+  const picksHTML = data.picks.map(p => {
+    const fight = fightMap[p.fightId];
     return `
       <div class="fight">
         <strong>${fight.f1}</strong> vs <strong>${fight.f2}</strong><br>
-        You picked: ${match.fighter} by ${match.method} ${outcome}
+        You picked: ${p.fighter} by ${p.method}
       </div>
     `;
   }).join("");
 
-  document.getElementById("myPicks").innerHTML = picksHTML || "No picks yet.";
+  document.getElementById("myPicks").innerHTML = picksHTML;
+}
+
+async function loadLeaderboard() {
+  const res = await fetch("/api/leaderboard");
+  const data = await res.json();
+
+  const weekly = data.weekly.map(u => `<li>${u.user}: ${u.weekly} pts</li>`).join("");
+  const all = data.allTime.map(u => `<li>${u.user}: ${u.total} pts</li>`).join("");
+
+  document.getElementById("weeklyBoard").innerHTML = weekly;
+  document.getElementById("allTimeBoard").innerHTML = all;
 }
