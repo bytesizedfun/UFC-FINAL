@@ -1,88 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>FantasyFightPicks</title>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🥊 Fantasy Fight Picks</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #111;
-      color: #eee;
-      text-align: center;
-      padding: 20px;
-    }
-    input, select, button {
-      margin: 5px;
-      padding: 8px;
-    }
-    .fight {
-      border: 1px solid #444;
+      font-family: "Bebas Neue", sans-serif;
+      background-color: #0d0d0d;
+      color: #f2f2f2;
       padding: 10px;
-      margin: 10px auto;
-      max-width: 500px;
-      background-color: #222;
+      margin: 0;
     }
+
+    h1, h2, h3 {
+      text-align: center;
+      letter-spacing: 1px;
+      margin-top: 10px;
+    }
+
+    input, select, button {
+      margin: 5px auto;
+      padding: 10px;
+      font-size: 1em;
+      width: 90%;
+      max-width: 400px;
+      display: block;
+      font-family: inherit;
+    }
+
+    button {
+      background-color: #c40000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ff1a1a;
+    }
+
+    .fight {
+      border-left: 5px solid #c40000;
+      background-color: #1a1a1a;
+      border-radius: 5px;
+      padding: 12px;
+      margin: 15px auto;
+      max-width: 500px;
+      box-shadow: 0 0 8px rgba(255, 0, 0, 0.2);
+    }
+
     #myPicks, #leaderboard {
       margin-top: 30px;
     }
-  <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #111;
-    color: #eee;
-    padding: 10px;
-    margin: 0;
-  }
 
-  h1, h2, h3 {
-    text-align: center;
-  }
-
-  input, select, button {
-    margin: 5px;
-    padding: 10px;
-    font-size: 1em;
-    width: 90%;
-    max-width: 400px;
-  }
-
-  button {
-    background-color: #444;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-  }
-
-  .fight {
-    border: 1px solid #444;
-    border-radius: 5px;
-    padding: 10px;
-    margin: 15px auto;
-    background-color: #222;
-    max-width: 500px;
-  }
-
-  #myPicks, #leaderboard {
-    margin-top: 30px;
-  }
-
-  ul {
-    padding-left: 0;
-    list-style-type: none;
-  }
-
-  li {
-    padding: 5px 0;
-  }
-
-  @media (max-width: 600px) {
-    .fight {
-      margin: 10px 5px;
+    ul {
+      padding-left: 0;
+      list-style-type: none;
     }
 
-    input, select, button {
-      width: 100%;
-      font-size: 1rem;
+    li {
+      padding: 5px 0;
+      border-bottom: 1px solid #333;
     }
-  }
-</style>
+
+    hr {
+      margin: 30px auto;
+      max-width: 500px;
+      border: 1px solid #c40000;
+    }
+
+    #countdown {
+      text-align: center;
+      font-size: 1.2em;
+      background: #222;
+      border: 2px solid #c40000;
+      border-radius: 5px;
+      padding: 10px;
+      max-width: 350px;
+      margin: 20px auto;
+    }
+
+    @media (max-width: 600px) {
+      .fight {
+        margin: 10px 5px;
+      }
+
+      input, select, button {
+        width: 100%;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🥊 Fantasy Fight Picks</h1>
+  <div id="countdown">⏳ Countdown to Holloway vs Poirier 3: <span id="timer">Loading...</span></div>
+
+  <div id="login">
+    <input type="text" id="username" placeholder="Enter your fighter name..." />
+    <button onclick="lockName()">Lock In Name</button>
+  </div>
+
+  <div id="fightForm" style="display:none;"></div>
+
+  <hr />
+
+  <div id="myPicks"></div>
+  <hr />
+  <div id="leaderboard"></div>
+
+  <script src="script.js"></script>
+  <script>
+    // Countdown to July 19, 2025
+    const eventDate = new Date("2025-07-19T22:00:00");
+    const timerSpan = document.getElementById("timer");
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = eventDate - now;
+
+      if (diff <= 0) {
+        timerSpan.textContent = "Event has started!";
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+      timerSpan.textContent = `${days}d ${hours}h ${minutes}m`;
+    }
+
+    setInterval(updateCountdown, 60000); // update every minute
+    updateCountdown(); // run immediately
+  </script>
+</body>
+</html>
