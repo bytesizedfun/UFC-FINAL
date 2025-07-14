@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🥊 Fantasy Fight Picks</title>
+  <title>👊 Fantasy Fight Picks</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -98,7 +98,7 @@
 </head>
 
 <body>
-  <h1>🥊 Fantasy Fight Picks</h1>
+  <h1>👊 Fantasy Fight Picks</h1>
   <div id="countdown">⏳ Countdown to Holloway vs Poirier 3: <span id="timer">Loading...</span></div>
 
   <div id="login">
@@ -109,14 +109,12 @@
   <div id="fightForm" style="display:none;"></div>
 
   <hr />
-
   <div id="myPicks"></div>
   <hr />
   <div id="leaderboard"></div>
 
   <script src="script.js"></script>
   <script>
-    // Countdown to July 19, 2025
     const eventDate = new Date("2025-07-19T22:00:00");
     const timerSpan = document.getElementById("timer");
 
@@ -136,8 +134,8 @@
       timerSpan.textContent = `${days}d ${hours}h ${minutes}m`;
     }
 
-    setInterval(updateCountdown, 60000); // update every minute
-    updateCountdown(); // run immediately
+    setInterval(updateCountdown, 60000);
+    updateCountdown();
   </script>
 </body>
 </html>
