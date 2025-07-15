@@ -6,7 +6,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let username = localStorage.getItem("username");
 
-  if (username) {
+  if (!username) {
+    loginDiv.style.display = "block";
+    fightForm.style.display = "none";
+  } else {
     loginDiv.style.display = "none";
     fightForm.style.display = "block";
 
@@ -59,3 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
           div.innerHTML = `
             <h3>${fight.f1} vs ${fight.f2}</h3>
             <select id="fighter-${fight.id}">
+              <option value="">Select Winner</option>
+              <option value="${fight.f1}">${fight.f1}</option>
+              <option value="${fight.f2}">${fight.f2}</option>
+            </select>
+            <select id="method-${fight.id}">
+              <option value="">Method</option>
+              <option value="KO">KO</optio
