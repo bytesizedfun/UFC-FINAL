@@ -19,37 +19,27 @@ document.addEventListener("DOMContentLoaded", () => {
     welcome.style.color = "#ff1a1a";
     fightForm.prepend(welcome);
 
-    checkIfAlreadyPicked();
-    loadMyPicks();
-    loadLeaderboard();
+    fetch(`/api/mypicks/${username}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.picks && data.picks.length > 0) {
+          loadMyPicks(data);
+          loadLeaderboard();
+        } else {
+          loadFights();
+          loadMyPicks();
+          loadLeaderboard();
+        }
+      });
   }
 
   window.lockName = function () {
     const input = document.getElementById("username");
     const name = input.value.trim();
-    if (!name) {
-      alert("Please enter a name.");
-      return;
-    }
+    if (!name) return alert("Please enter a name.");
     localStorage.setItem("username", name);
     location.reload();
   };
-
-  function checkIfAlreadyPicked() {
-    fetch(`/api/mypicks/${localStorage.getItem("username")}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.picks && data.picks.length > 0) {
-          const msg = document.createElement("p");
-          msg.textContent = "✅ You’ve already submitted your picks.";
-          msg.style.textAlign = "center";
-          msg.style.color = "#66ff66";
-          fightForm.appendChild(msg);
-        } else {
-          loadFights();
-        }
-      });
-  }
 
   function loadFights() {
     fetch("/api/fights")
@@ -97,4 +87,69 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    fetch(
+    if (picks.length === 0) {
+      alert("Please make your selections before submitting.");
+      return;
+    }
+
+    fetch("/api/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: localStorage.getItem("username"), picks })
+    })
+      .then(res => res.json())
+      .then(() => {
+        alert("✅ Picks saved!");
+        fightForm.innerHTML = ""; // clear fight form
+        loadMyPicks();
+        loadLeaderboard();
+      });
+  }
+
+  function loadMyPicks(dataOverride = null) {
+    const username = localStorage.getItem("username");
+
+    const fetchData = dataOverride
+      ? Promise.resolve(dataOverride)
+      : fetch(`/api/mypicks/${username}`).then(res => res.json());
+
+    fetchData.then(data => {
+      myPicksDiv.innerHTML = "<h2>Your Picks</h2>";
+      if (!data.picks || data.picks.length === 0) {
+        myPicksDiv.innerHTML += "<p>No picks submitted yet.</p>";
+        return;
+      }
+
+      const ul = document.createElement("ul");
+      data.picks.forEach(pick => {
+        const fight = data.fights.find(f => f.id == pick.fightId);
+        const li = document.createElement("li");
+        li.textContent = `${fight.f1} vs ${fight.f2} — You picked ${pick.fighter} by ${pick.method}`;
+        ul.appendChild(li);
+      });
+
+      myPicksDiv.appendChild(ul);
+    });
+  }
+
+  function loadLeaderboard() {
+    fetch("/api/leaderboard")
+      .then(res => res.json())
+      .then(data => {
+        leaderboardDiv.innerHTML = "<h2>🏆 Leaderboard</h2>";
+
+        const weekly = document.createElement("div");
+        weekly.innerHTML = "<h3>This Week</h3><ul>" +
+          data.weekly.map(p => `<li>${p.user}: ${p.weekly} pts</li>`).join("") +
+          "</ul>";
+
+        const allTime = document.createElement("div");
+        allTime.innerHTML = "<h3>All-Time</h3><ul>" +
+          data.allTime.map(p => `<li>${p.user}: ${p.total} pts</li>`).join("") +
+          "</ul>";
+
+        leaderboardDiv.appendChild(weekly);
+        leaderboardDiv.appendChild(allTime);
+      });
+  }
+});
