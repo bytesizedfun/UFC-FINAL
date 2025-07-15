@@ -7,9 +7,5 @@
     { "id": 4, "f1": "JP Buys", "f2": "Victor Altamirano", "underdog": "JP Buys" },
     { "id": 5, "f1": "Bruna Brasil", "f2": "Denise Gomes", "underdog": "Bruna Brasil" }
   ],
-  "results": [
-    { "fightId": 1, "winner": "Max Holloway", "method": "Decision", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" },
-    { "fightId": 2, "winner": "Gustavo Lopez", "method": "KO", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" },
-    { "fightId": 3, "winner": "Elves Brener", "method": "Submission", "event": "UFC Fight Night: Holloway vs. Poirier 3 (July 19, 2025)" }
-  ]
+  "results": []
 }
