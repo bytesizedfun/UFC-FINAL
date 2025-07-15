@@ -7,13 +7,16 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // PostgreSQL connection
+require("dotenv").config(); // add this at the very top of the file
+
 const db = new Pool({
-  user: "fantasy_fight_db_user",
-  host: "dpg-d1qsg2gdl3ps73eopo2g-a",
-  database: "fantasy_fight_db",
-  password: "YOUR_RENDER_PASSWORD", // <-- paste it here
-  port: 5432,
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASS,
+  port: process.env.DB_PORT,
 });
+
 
 // Still use local fights file for now
 const fs = require("fs");
