@@ -41,14 +41,26 @@ app.get("/api/fights", (req, res) => {
 });
 
 app.post("/api/submit", (req, res) => {
-  const { username, picks } = req.body;
+  const { username, picks, append } = req.body;
   if (!username || !Array.isArray(picks)) return res.status(400).json({ error: "Invalid data" });
 
   const all = load(picksFile);
-  all[username] = picks;
+
+  // Ensure this user has an array
+  if (!all[username]) all[username] = [];
+
+  if (append) {
+    const existingIds = new Set(all[username].map(p => p.fightId));
+    const newPicks = picks.filter(p => !existingIds.has(p.fightId));
+    all[username] = all[username].concat(newPicks);
+  } else {
+    all[username] = picks;
+  }
+
   save(picksFile, all);
   res.json({ success: true });
 });
+
 
 app.get("/api/mypicks/:username", (req, res) => {
   const allPicks = load(picksFile);
