@@ -10,10 +10,30 @@ const picksFile = path.join(__dirname, "data", "picks.json");
 const fightsFile = path.join(__dirname, "data", "fights.json");
 
 function load(file) {
-  return JSON.parse(fs.readFileSync(file));
+  try {
+    return JSON.parse(fs.readFileSync(file));
+  } catch (err) {
+    console.error(`❌ Failed to load ${file}:`, err);
+    return {};
+  }
 }
+
 function save(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  const backupFile = file + ".bak";
+  try {
+    // Create a backup first
+    if (fs.existsSync(file)) {
+      fs.copyFileSync(file, backupFile);
+    }
+    // Save updated data
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error(`❌ Failed to save ${file}:`, err);
+    if (fs.existsSync(backupFile)) {
+      fs.copyFileSync(backupFile, file);
+      console.log(`🔁 Restored ${file} from backup.`);
+    }
+  }
 }
 
 app.get("/api/fights", (req, res) => {
