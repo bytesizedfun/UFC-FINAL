@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const loginDiv = document.getElementById("login");
   const fightForm = document.getElementById("fightForm");
-  const myPicksDiv = document.getElementById("myPicks");
   const leaderboardDiv = document.getElementById("leaderboard");
 
   const username = localStorage.getItem("username");
@@ -19,18 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
     welcome.style.color = "#ff1a1a";
     fightForm.prepend(welcome);
 
-    fetch(`/api/mypicks/${username}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.picks && data.picks.length > 0) {
-          loadMyPicks(data);
-          loadLeaderboard();
-        } else {
-          loadFights();
-          loadMyPicks();
-          loadLeaderboard();
-        }
-      });
+    loadFights();
+    loadLeaderboard();
   }
 
   window.lockName = function () {
@@ -44,93 +33,67 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadFights() {
     fetch("/api/fights")
       .then(res => res.json())
-      .then(data => {
-        const event = document.createElement("h2");
-        event.textContent = data.event;
-        fightForm.appendChild(event);
+      .then(fightData => {
+        fetch(`/api/mypicks/${username}`)
+          .then(res => res.json())
+          .then(userData => {
+            const picked = userData.picks || [];
+            const pickedIds = picked.map(p => p.fightId);
 
-        data.fights.forEach(fight => {
-          const div = document.createElement("div");
-          div.className = "fight";
-          div.innerHTML = `
-            <h3>${fight.f1} vs ${fight.f2}</h3>
-            <select id="fighter-${fight.id}">
-              <option value="">Select Winner</option>
-              <option value="${fight.f1}">${fight.f1}</option>
-              <option value="${fight.f2}">${fight.f2}</option>
-            </select>
-            <select id="method-${fight.id}">
-              <option value="">Method</option>
-              <option value="KO">KO</option>
-              <option value="Submission">Submission</option>
-              <option value="Decision">Decision</option>
-            </select>
-          `;
-          fightForm.appendChild(div);
-        });
+            const event = document.createElement("h2");
+            event.textContent = fightData.event;
+            fightForm.appendChild(event);
 
-        const btn = document.createElement("button");
-        btn.textContent = "Submit Picks";
-        btn.onclick = submitPicks;
-        fightForm.appendChild(btn);
+            fightData.fights.forEach(fight => {
+              const div = document.createElement("div");
+              div.className = "fight";
+
+              const isPicked = pickedIds.includes(fight.id);
+              div.innerHTML = `
+                <h3>${fight.f1} vs ${fight.f2}</h3>
+                <select id="fighter-${fight.id}" ${isPicked ? "disabled" : ""}>
+                  <option value="">Select Winner</option>
+                  <option value="${fight.f1}">${fight.f1}</option>
+                  <option value="${fight.f2}">${fight.f2}</option>
+                </select>
+                <select id="method-${fight.id}" ${isPicked ? "disabled" : ""}>
+                  <option value="">Method</option>
+                  <option value="KO">KO</option>
+                  <option value="Submission">Submission</option>
+                  <option value="Decision">Decision</option>
+                </select>
+                <button onclick="submitSinglePick('${fight.id}')" ${isPicked ? "disabled" : ""}>Lock Pick</button>
+              `;
+
+              fightForm.appendChild(div);
+            });
+          });
       });
   }
 
-  function submitPicks() {
-    const picks = [];
-    document.querySelectorAll(".fight").forEach(div => {
-      const id = div.querySelector("select").id.split("-")[1];
-      const fighter = document.getElementById(`fighter-${id}`).value;
-      const method = document.getElementById(`method-${id}`).value;
-      if (fighter && method) {
-        picks.push({ fightId: id, fighter, method });
-      }
-    });
-
-    if (picks.length === 0) {
-      alert("Please make your selections before submitting.");
+  window.submitSinglePick = function (fightId) {
+    const fighter = document.getElementById(`fighter-${fightId}`).value;
+    const method = document.getElementById(`method-${fightId}`).value;
+    if (!fighter || !method) {
+      alert("Pick both fighter and method.");
       return;
     }
 
     fetch("/api/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: localStorage.getItem("username"), picks })
+      body: JSON.stringify({
+        username: localStorage.getItem("username"),
+        picks: [{ fightId, fighter, method }],
+        append: true
+      })
     })
       .then(res => res.json())
       .then(() => {
-        alert("✅ Picks saved!");
-        fightForm.innerHTML = ""; // clear fight form
-        loadMyPicks();
-        loadLeaderboard();
+        alert("✅ Pick locked in!");
+        location.reload();
       });
-  }
-
-  function loadMyPicks(dataOverride = null) {
-    const username = localStorage.getItem("username");
-
-    const fetchData = dataOverride
-      ? Promise.resolve(dataOverride)
-      : fetch(`/api/mypicks/${username}`).then(res => res.json());
-
-    fetchData.then(data => {
-      myPicksDiv.innerHTML = "<h2>Your Picks</h2>";
-      if (!data.picks || data.picks.length === 0) {
-        myPicksDiv.innerHTML += "<p>No picks submitted yet.</p>";
-        return;
-      }
-
-      const ul = document.createElement("ul");
-      data.picks.forEach(pick => {
-        const fight = data.fights.find(f => f.id == pick.fightId);
-        const li = document.createElement("li");
-        li.textContent = `${fight.f1} vs ${fight.f2} — You picked ${pick.fighter} by ${pick.method}`;
-        ul.appendChild(li);
-      });
-
-      myPicksDiv.appendChild(ul);
-    });
-  }
+  };
 
   function loadLeaderboard() {
     fetch("/api/leaderboard")
@@ -153,4 +116,3 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 });
-
