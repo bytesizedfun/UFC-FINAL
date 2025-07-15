@@ -10,11 +10,30 @@ const picksFile = path.join(__dirname, "data", "picks.json");
 const fightsFile = path.join(__dirname, "data", "fights.json");
 
 function load(file) {
-  return JSON.parse(fs.readFileSync(file));
+  try {
+    return JSON.parse(fs.readFileSync(file));
+  } catch (err) {
+    console.error(`❌ Failed to load ${file}:`, err);
+    return {};
+  }
 }
 
 function save(file, data) {
-  fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  const backupFile = file + ".bak";
+  try {
+    // Create a backup first
+    if (fs.existsSync(file)) {
+      fs.copyFileSync(file, backupFile);
+    }
+    // Save updated data
+    fs.writeFileSync(file, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error(`❌ Failed to save ${file}:`, err);
+    if (fs.existsSync(backupFile)) {
+      fs.copyFileSync(backupFile, file);
+      console.log(`🔁 Restored ${file} from backup.`);
+    }
+  }
 }
 
 app.get("/api/fights", (req, res) => {
@@ -22,28 +41,11 @@ app.get("/api/fights", (req, res) => {
 });
 
 app.post("/api/submit", (req, res) => {
-  const { username, picks, append } = req.body;
-  if (!username || !Array.isArray(picks)) {
-    return res.status(400).json({ error: "Invalid data" });
-  }
+  const { username, picks } = req.body;
+  if (!username || !Array.isArray(picks)) return res.status(400).json({ error: "Invalid data" });
 
   const all = load(picksFile);
-
-  // Initialize user if not present
-  if (!all[username]) all[username] = [];
-
-  if (append) {
-    picks.forEach(newPick => {
-      // Skip if this fightId is already picked
-      if (!all[username].some(p => p.fightId === newPick.fightId)) {
-        all[username].push(newPick);
-      }
-    });
-  } else {
-    // Full replace
-    all[username] = picks;
-  }
-
+  all[username] = picks;
   save(picksFile, all);
   res.json({ success: true });
 });
@@ -73,11 +75,16 @@ app.get("/api/leaderboard", (req, res) => {
 
       let pts = 0;
 
+      console.log(`Scoring pick for ${user}:`, pick);
+      console.log(`Matched result:`, result);
+
       if (pick.fighter === result.winner) {
         pts += 1;
         if (pick.method === result.method) pts += 1;
         if (underdogs[pick.fightId] === pick.fighter) pts += 2;
       }
+
+      console.log(`+${pts} points awarded for this pick`);
 
       total += pts;
       if (result.event === fights.event) weeklyPoints += pts;
