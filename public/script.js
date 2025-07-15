@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const myPicksDiv = document.getElementById("myPicks");
   const leaderboardDiv = document.getElementById("leaderboard");
 
-  let username = localStorage.getItem("username");
+  const username = localStorage.getItem("username");
 
   if (!username) {
     loginDiv.style.display = "block";
@@ -27,7 +27,10 @@ document.addEventListener("DOMContentLoaded", () => {
   window.lockName = function () {
     const input = document.getElementById("username");
     const name = input.value.trim();
-    if (!name) return alert("Please enter a name.");
+    if (!name) {
+      alert("Please enter a name.");
+      return;
+    }
     localStorage.setItem("username", name);
     location.reload();
   };
@@ -38,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(data => {
         if (data.picks && data.picks.length > 0) {
           const msg = document.createElement("p");
-          msg.textContent = "✅ You’ve already submitted your picks for this card.";
+          msg.textContent = "✅ You’ve already submitted your picks.";
           msg.style.textAlign = "center";
           msg.style.color = "#66ff66";
           fightForm.appendChild(msg);
@@ -68,4 +71,30 @@ document.addEventListener("DOMContentLoaded", () => {
             </select>
             <select id="method-${fight.id}">
               <option value="">Method</option>
-              <option value="KO">KO</optio
+              <option value="KO">KO</option>
+              <option value="Submission">Submission</option>
+              <option value="Decision">Decision</option>
+            </select>
+          `;
+          fightForm.appendChild(div);
+        });
+
+        const btn = document.createElement("button");
+        btn.textContent = "Submit Picks";
+        btn.onclick = submitPicks;
+        fightForm.appendChild(btn);
+      });
+  }
+
+  function submitPicks() {
+    const picks = [];
+    document.querySelectorAll(".fight").forEach(div => {
+      const id = div.querySelector("select").id.split("-")[1];
+      const fighter = document.getElementById(`fighter-${id}`).value;
+      const method = document.getElementById(`method-${id}`).value;
+      if (fighter && method) {
+        picks.push({ fightId: id, fighter, method });
+      }
+    });
+
+    fetch(
