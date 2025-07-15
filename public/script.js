@@ -12,15 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
     loginDiv.style.display = "none";
     fightForm.style.display = "block";
 
-    const welcome = document.createElement("h2");
-    welcome.textContent = `IIIIIT'S TIME... Welcome back ${username}`;
-    welcome.style.textAlign = "center";
-    welcome.style.color = "#ff1a1a";
-    fightForm.prepend(welcome);
+const welcome = document.createElement("h2");
+welcome.textContent = `IIIIIT'S TIME... Welcome back ${username}`;
+welcome.style.textAlign = "center";
+welcome.style.color = "#ff1a1a";
+fightForm.prepend(welcome);
 
-    loadFights();
-    loadLeaderboard();
-  }
+loadFights();
+loadLeaderboard();
+loadMyPicks();
 
   window.lockName = function () {
     const input = document.getElementById("username");
